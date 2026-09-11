@@ -11,9 +11,10 @@ Flutter-приложение, которое разбирает состав п�
 
 | Ввод | Загрузка | Результат |
 |------|----------|-----------|
-| ![Экран ввода](docs/screenshot_input.png) | ![Загрузка](docs/screenshot_loading.png) | ![Результат](docs/screenshot_result.png) |
+| ![Экран ввода](screenshots/screenshot_input.png) | ![Загрузка](screenshots/screenshot_loading.png) | ![Результат](screenshots/screenshot_result.png) |
 
-> Скриншоты-заглушки. Положите реальные изображения в `docs/` под этими именами.
+> Скриншоты лежат в папке `screenshots/` с именами `screenshot_input.png`,
+> `screenshot_loading.png` и `screenshot_result.png`.
 
 ## Возможности
 
