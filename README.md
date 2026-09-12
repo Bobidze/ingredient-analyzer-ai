@@ -1,108 +1,108 @@
-# Состав — анализатор состава продуктов
+# Sostav — food ingredient analyzer
 
-Flutter-приложение, которое разбирает состав продукта по фотографии этикетки
-или введённому тексту. Данные отправляются в **LLM-провайдер** (сейчас —
-**Qwen через Alibaba Bailian**, по OpenAI-совместимому API), который возвращает
-строго структурированный JSON: общую оценку продукта и список ингредиентов с
-категорией, назначением и уровнем внимания. Ингредиенты показываются карточками
-с цветовой индикацией (🟢 безопасен · 🟡 есть нюансы · 🔴 стоит избегать).
+**English** · [Русский](README.ru.md)
+
+A Flutter app that breaks down a product's ingredient list from a photo of the
+label or from typed text. The input is sent to an **LLM provider** (currently
+**Qwen via Alibaba Bailian**, over an OpenAI-compatible API), which returns
+strictly structured JSON: an overall product score and a list of ingredients
+with category, purpose and concern level. Ingredients are rendered as cards with
+color coding (🟢 safe · 🟡 some caveats · 🔴 better avoided).
 
 <p align="center">
-  <img src="screenshots/demo.gif" alt="Демонстрация работы приложения «Состав»" width="320">
+  <img src="screenshots/demo.gif" alt="Sostav app demo" width="320">
 </p>
 
-<!-- Положи GIF-демо в screenshots/demo.gif — блок выше подхватит её автоматически. -->
+## Screenshots
 
-## Скриншоты
+| Input | Loading | Result |
+|-------|---------|--------|
+| ![Input screen](screenshots/screenshot_input.png) | ![Loading](screenshots/screenshot_loading.png) | ![Result](screenshots/screenshot_result.png) |
 
-| Ввод | Загрузка | Результат |
-|------|----------|-----------|
-| ![Экран ввода](screenshots/screenshot_input.png) | ![Загрузка](screenshots/screenshot_loading.png) | ![Результат](screenshots/screenshot_result.png) |
+> Screenshots live in `screenshots/` as `screenshot_input.png`,
+> `screenshot_loading.png` and `screenshot_result.png`.
 
-> Скриншоты лежат в папке `screenshots/` с именами `screenshot_input.png`,
-> `screenshot_loading.png` и `screenshot_result.png`.
+## Features
 
-## Возможности
+- 📷 Label photo from camera or gallery, plus manual text input
+- 🤖 Analysis through a multimodal model (Qwen-VL) with **structured JSON** output
+- 🔌 Provider abstraction: switching between Qwen and OpenAI is one flag
+- 🎨 Material 3, light and dark themes, large type, soft shadows
+- 🧩 Ingredient cards with a colored concern-level stripe
+- 🛡️ Full error handling: offline, timeout, rate limit (429), malformed JSON, empty input
 
-- 📷 Фото этикетки с камеры или из галереи + ручной ввод состава текстом
-- 🤖 Разбор через мультимодальную модель (Qwen-VL) со **структурированным JSON**
-- 🔌 Абстракция над провайдером: легко переключиться между Qwen и OpenAI
-- 🎨 Material 3, светлая и тёмная темы, крупная типографика, мягкие тени
-- 🧩 Карточки ингредиентов с цветной полосой уровня внимания
-- 🛡️ Полная обработка ошибок: нет сети, таймаут, лимит (429), битый JSON, пустой ввод
+## Running
 
-## Запуск
-
-Нужен API-ключ Alibaba Bailian / DashScope
-(получить: <https://bailian.console.alibabacloud.com/>).
-Ключ **не хранится в коде** — он передаётся при запуске через `--dart-define`:
+You need an Alibaba Bailian / DashScope API key
+(get one at <https://bailian.console.alibabacloud.com/>).
+The key is **never stored in the code** — it is passed at launch via `--dart-define`:
 
 ```bash
 flutter pub get
 
-# запуск с провайдером по умолчанию (Qwen)
-flutter run --dart-define=DASHSCOPE_API_KEY=ВАШ_КЛЮЧ
+# run with the default provider (Qwen)
+flutter run --dart-define=DASHSCOPE_API_KEY=YOUR_KEY
 
-# сборка релиза (Android)
-flutter build apk --dart-define=DASHSCOPE_API_KEY=ВАШ_КЛЮЧ
+# release build (Android)
+flutter build apk --dart-define=DASHSCOPE_API_KEY=YOUR_KEY
 ```
 
-Все настраиваемые параметры сборки:
+All configurable build parameters:
 
-| dart-define | По умолчанию | Назначение |
-|-------------|--------------|------------|
-| `AI_PROVIDER` | `qwen` | Активный провайдер: `qwen` или `openai` |
-| `DASHSCOPE_API_KEY` | — | Ключ Bailian (для Qwen) |
-| `QWEN_MODEL` | `qwen3-vl-plus` | Vision-модель Qwen |
-| `QWEN_BASE_URL` | `…dashscope-intl…/compatible-mode/v1` | Эндпоинт (Пекин: без `-intl`) |
-| `QWEN_JSON_MODE` | `false` | Слать ли `response_format: json_object` |
-| `AI_TIMEOUT_SECONDS` | `60` | Таймаут запроса к модели |
-| `OPENAI_API_KEY` | — | Ключ OpenAI (если `AI_PROVIDER=openai`) |
-| `OPENAI_MODEL` | `gpt-4o-mini` | Модель OpenAI |
+| dart-define | Default | Purpose |
+|-------------|---------|---------|
+| `AI_PROVIDER` | `qwen` | Active provider: `qwen` or `openai` |
+| `DASHSCOPE_API_KEY` | — | Bailian key (for Qwen) |
+| `QWEN_MODEL` | `qwen3-vl-plus` | Qwen vision model |
+| `QWEN_BASE_URL` | `…dashscope-intl…/compatible-mode/v1` | Endpoint (Beijing: drop `-intl`) |
+| `QWEN_JSON_MODE` | `false` | Whether to send `response_format: json_object` |
+| `AI_TIMEOUT_SECONDS` | `60` | Model request timeout |
+| `OPENAI_API_KEY` | — | OpenAI key (when `AI_PROVIDER=openai`) |
+| `OPENAI_MODEL` | `gpt-4o-mini` | OpenAI model |
 
-Переключение на OpenAI:
+Switching to OpenAI:
 
 ```bash
-flutter run --dart-define=AI_PROVIDER=openai --dart-define=OPENAI_API_KEY=ВАШ_КЛЮЧ
+flutter run --dart-define=AI_PROVIDER=openai --dart-define=OPENAI_API_KEY=YOUR_KEY
 ```
 
-> Совет: чтобы не вводить ключ каждый раз, используйте файл
-> `--dart-define-from-file=env.json` (не коммитьте его — он уже в `.gitignore`).
+> Tip: to avoid retyping the key, use `--dart-define-from-file=env.json`
+> (do not commit that file — it is already in `.gitignore`).
 
-## Архитектура
+## Architecture
 
-Классическое разделение слоёв, состояние — на **Riverpod**.
+Classic layer separation, state handled by **Riverpod**.
 
 ```
 lib/
-├── main.dart                       # ProviderScope + Material 3 темы (light/dark)
+├── main.dart                       # ProviderScope + Material 3 themes (light/dark)
 ├── config/
-│   └── ai_config.dart              # выбор активного провайдера (сейчас Qwen)
+│   └── ai_config.dart              # picks the active provider (Qwen today)
 ├── models/
-│   ├── ingredient.dart             # Ingredient + enum ConcernLevel (цвет/иконка/подпись)
-│   └── analysis_result.dart        # AnalysisResult + защитный fromJson
+│   ├── ingredient.dart             # Ingredient + ConcernLevel enum (color/icon/label)
+│   └── analysis_result.dart        # AnalysisResult + defensive fromJson
 ├── services/
-│   ├── ai_provider.dart            # abstract AiProvider + база OpenAI-совместимых + ошибки/схема
+│   ├── ai_provider.dart            # abstract AiProvider + OpenAI-compatible base + errors/schema
 │   ├── qwen_provider.dart          # QwenProvider (Bailian, qwen3-vl-plus)
-│   └── openai_provider.dart        # OpenAiProvider (альтернатива)
+│   └── openai_provider.dart        # OpenAiProvider (alternative)
 ├── providers/
 │   └── analysis_provider.dart      # AnalysisController → AsyncValue<AnalysisResult?>
 ├── screens/
-│   ├── input_screen.dart           # ввод: фото/галерея/текст + валидация
-│   └── result_screen.dart          # loading / data / error через state.when()
+│   ├── input_screen.dart           # input: camera/gallery/text + validation
+│   └── result_screen.dart          # loading / data / error via state.when()
 └── widgets/
-    ├── ingredient_card.dart        # карточка с цветной полосой слева
+    ├── ingredient_card.dart        # card with a colored stripe on the left
     ├── loading_view.dart
     └── error_view.dart
 ```
 
-**Поток данных.** `InputScreen` валидирует ввод и вызывает
-`AnalysisController.analyze()`. Контроллер выставляет `AsyncLoading`, дёргает
-активный `AiProvider.analyzeIngredients()` через `AsyncValue.guard` и кладёт
-результат в `AsyncData` либо ошибку в `AsyncError`. `ResultScreen` подписан на
-это состояние и рендерит нужный экран через `state.when(...)`.
+**Data flow.** `InputScreen` validates the input and calls
+`AnalysisController.analyze()`. The controller emits `AsyncLoading`, calls the
+active `AiProvider.analyzeIngredients()` through `AsyncValue.guard`, and stores
+the result in `AsyncData` or the failure in `AsyncError`. `ResultScreen` watches
+that state and renders the matching view via `state.when(...)`.
 
-### Абстракция над провайдером
+### Provider abstraction
 
 ```dart
 abstract class AiProvider {
@@ -112,37 +112,37 @@ abstract class AiProvider {
 }
 ```
 
-Так как и Bailian (Qwen), и OpenAI используют один и тот же OpenAI-совместимый
-формат `/chat/completions`, общая HTTP-логика вынесена в базовый
-`OpenAiCompatibleProvider`, а `QwenProvider` / `OpenAiProvider` задают лишь
-эндпоинт, ключ, модель и флаг JSON-режима. Активный провайдер выбирается в
-`AiConfig` (`--dart-define=AI_PROVIDER=…`), по умолчанию — **Qwen**.
+Because both Bailian (Qwen) and OpenAI speak the same OpenAI-compatible
+`/chat/completions` format, the shared HTTP logic lives in the base
+`OpenAiCompatibleProvider`, while `QwenProvider` / `OpenAiProvider` only supply
+the endpoint, key, model and JSON-mode flag. The active provider is selected in
+`AiConfig` (`--dart-define=AI_PROVIDER=…`), defaulting to **Qwen**.
 
-### Управление состоянием (Riverpod)
+### State management (Riverpod)
 
-Три состояния UI — это три ветки одного `AsyncValue`:
+The three UI states are three branches of a single `AsyncValue`:
 
-- `AsyncData(null)` — простой (стартовый экран);
-- `AsyncLoading` — идёт запрос → `LoadingView`;
-- `AsyncData(result)` — готово → карточки;
-- `AsyncError(e)` — ошибка → `ErrorView` (в `e` лежит типизированный `AiException`).
+- `AsyncData(null)` — idle (start screen);
+- `AsyncLoading` — request in flight → `LoadingView`;
+- `AsyncData(result)` — done → ingredient cards;
+- `AsyncError(e)` — failure → `ErrorView` (`e` holds a typed `AiException`).
 
-Контроллер помнит последний запрос, поэтому кнопка «Повторить» работает без
-возврата на экран ввода.
+The controller remembers the last request, so the "Retry" button works without
+going back to the input screen.
 
-## Как устроена работа со схемой ответа
+## How the response schema is enforced
 
-Ключевая часть — заставить модель вернуть **строгий JSON**, а не свободный
-текст. Ожидаемая схема:
+The key part is making the model return **strict JSON** rather than free text.
+The expected schema:
 
 ```jsonc
 {
-  "product_summary": "строка",
-  "overall_score": 7,               // целое 1..10
+  "product_summary": "string",
+  "overall_score": 7,               // integer 1..10
   "ingredients": [
     {
-      "name": "Бензоат натрия",
-      "category": "консервант",
+      "name": "Sodium benzoate",
+      "category": "preservative",
       "purpose": "…",
       "concern_level": "moderate",  // "safe" | "moderate" | "avoid"
       "note": "…"
@@ -151,54 +151,54 @@ abstract class AiProvider {
 }
 ```
 
-Используется двухуровневый подход:
+A two-tier approach is used:
 
-1. **Если провайдер поддерживает `response_format: {type: "json_object"}`**
-   (OpenAI — да; Qwen-VL — включается флагом `QWEN_JSON_MODE`), он передаётся в
-   запросе, и API гарантирует валидный JSON-объект.
-2. **Иначе** формат задаётся в системном промпте (полная схема + требование
-   «верни строго JSON, без markdown»), а ответ **валидируется при парсинге**:
-   `extractJsonObject()` снимает markdown-фенсы ```` ```json ````, вырезает
-   объект по фигурным скобкам и декодирует его.
+1. **If the provider supports `response_format: {type: "json_object"}`**
+   (OpenAI does; for Qwen-VL it is enabled by the `QWEN_JSON_MODE` flag), it is
+   sent with the request and the API guarantees a valid JSON object.
+2. **Otherwise** the format is described in the system prompt (full schema plus
+   a "return strict JSON, no markdown" instruction), and the reply is
+   **validated while parsing**: `extractJsonObject()` strips markdown ```` ```json ````
+   fences, slices the object out by its braces and decodes it.
 
-Дальше JSON проходит через **защитный** `AnalysisResult.fromJson`: неверные
-типы, отсутствующие поля и неизвестные значения `concern_level` не роняют
-приложение (`overall_score` клампится в 1–10, неизвестный уровень → `moderate`).
+The JSON then goes through the **defensive** `AnalysisResult.fromJson`: wrong
+types, missing fields and unknown `concern_level` values never crash the app
+(`overall_score` is clamped to 1–10, an unknown level falls back to `moderate`).
 
-Запрос мультимодальный: текст и/или изображение (base64 `data:`-URI в
-`image_url`) отправляются в одном сообщении `role: user`. Ответ — на русском.
+The request is multimodal: text and/or image (base64 `data:` URI in `image_url`)
+are sent in a single `role: user` message. The model replies in Russian.
 
-## Обработка ошибок
+## Error handling
 
-Все ошибки — типизированные наследники `AiException` с готовым русским
-сообщением:
+Every failure is a typed `AiException` subclass carrying a ready-to-show
+message:
 
-| Ситуация | Класс | Поведение в UI |
-|----------|-------|----------------|
-| Нет сети | `NetworkException` | сообщение + «Повторить» |
-| Таймаут (60 c) | `RequestTimeoutException` | отдельное сообщение |
-| Лимит запросов | `RateLimitException` (429) | «подождите и повторите» |
-| Битый JSON | `InvalidResponseException` | ошибка, без краша |
-| Нет ключа | `MissingApiKeyException` | подсказка про `--dart-define` |
-| Пустой ввод | — | валидация до запроса (SnackBar) |
+| Situation | Class | UI behavior |
+|-----------|-------|-------------|
+| Offline | `NetworkException` | message + "Retry" |
+| Timeout (60 s) | `RequestTimeoutException` | dedicated message |
+| Rate limit | `RateLimitException` (429) | "wait and try again" |
+| Malformed JSON | `InvalidResponseException` | error shown, no crash |
+| Missing key | `MissingApiKeyException` | hint about `--dart-define` |
+| Empty input | — | validated before the request (SnackBar) |
 
-## Стек
+## Stack
 
 - Flutter 3.41 / Dart 3.11
-- [flutter_riverpod](https://pub.dev/packages/flutter_riverpod) — управление состоянием
-- [http](https://pub.dev/packages/http) — запросы к OpenAI-совместимому API
-- [image_picker](https://pub.dev/packages/image_picker) — камера и галерея
-- Бэкенда нет: приложение обращается к API провайдера напрямую
+- [flutter_riverpod](https://pub.dev/packages/flutter_riverpod) — state management
+- [http](https://pub.dev/packages/http) — calls to the OpenAI-compatible API
+- [image_picker](https://pub.dev/packages/image_picker) — camera and gallery
+- No backend: the app talks to the provider API directly
 
-## Тесты
+## Tests
 
 ```bash
 flutter test
 ```
 
-Покрыты рендер экрана ввода и валидация пустого ввода.
+Covers rendering of the input screen and empty-input validation.
 
-## Безопасность
+## Security
 
-Ключ API читается только через `String.fromEnvironment` и нигде не
-хардкодится. Не коммитьте ключ и файлы `--dart-define-from-file`.
+The API key is read only through `String.fromEnvironment` and is never
+hardcoded. Do not commit keys or `--dart-define-from-file` files.
